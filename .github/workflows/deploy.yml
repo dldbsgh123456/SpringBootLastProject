@@ -32,7 +32,7 @@ jobs:
      - name: ADD SSH Key
        uses: webfactory/ssh-agent@v0.5.3
        with:
-         ssh-private-key:${{secrets.SERVER_SSH_KEY}}
+         ssh-private-key: ${{secrets.SERVER_SSH_KEY}}
     # ADD Known_hosts
      - name: Add Known_hosts
        run: |
