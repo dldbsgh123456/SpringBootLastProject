@@ -25,12 +25,13 @@
             <span class="header-link">AI 서비스 소개</span>
             <span class="header-link">이용 안내</span>
             <button class="login" onclick="login()" th:if="${!isLogin}">로그인</button>
-            <div th:if="${isLogin}" class="d-flex align-items-center gap-3"></div>
+            <div th:if="${isLogin}" class="d-flex align-items-center gap-3">
               <span>
                 <strong th:text="${username}"></strong>님
               </span>
               <a href="/admin/main" th:if="${role=='ROLE_ADMIN'}" style="color:white;">(관리자)</a>
               <button class="logout" onclick="logout()">로그아웃</button>
+            </div>
         </div>
     </header>
 
