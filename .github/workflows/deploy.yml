@@ -1,29 +1,66 @@
-name: Deploy to AWS Server
+name: Deploy With Docker to AWS Server
+# 실행 조건 
 on:
   push:
+    # main으로 commit & push인 경우
     branches:
       - main #main commit and push = [main,master]
 jobs:
-  build:
+  deploy:
+    # Github Actions가 제공하는 ubuntu환경에서 실행
+    # AWS EC2가 아니고 Github Actions 임시로 사용하는 Ubuntu
     runs-on: ubuntu-latest
-    
+    # 실행 순서 지정 
+    # name = stage = step
     steps:
-     #코드 체크 
+     # 어떤 소스를 가지고 올 지=> src build.gradle gradlew Dockerfile
+     #코드 체크 (Repository)
      - name: Checkout:repository
-       uses: actions/checkout@v2
-     #JDK 설정 
+       uses: actions/checkout@v4
+     #JDK 설정 => SpringBoot프로젝트를 build => JDK 설정
      - name: SetUp JDK 21
-       uses: actions/setup-java@v1
+       uses: actions/setup-java@v4
        with:
+         # 가장 최소단위 JDK = 이클립스 JDK 사용
+         distribution: 'temurin'
          java-version: '21'
-     # Gradlew 권한 부여 
+     - name: 환경설정
+       run: |
+          # 기존 파일 삭제
+          rm -f .env
+          # 새로운 .env 생성
+          touch .env
+          echo "DB_URL=${{secrets.DB_URL}}" >> .env
+          echo "DB_URL=${{secrets.DB_USERNAME}}" >> .env
+          echo "DB_URL=${{secrets.DB_PASSWORD}}" >> .env
+          echo "DB_URL=${{secrets.DOCKERHUB_USERNAME}}" >> .env
+          echo "DB_URL=${{secrets.DOCKERHUB_PASSWORD}}" >> .env
+          
+     # Gradlew 권한 부여
      - name: Set gradlew permission
        run: |
          chmod +x ./gradlew
      # Gradle Build 
      - name: Build with Gradlew
        run: ./gradlew clean build -x test
-     # AWS 연결 
+     # Docker Hub 연결 = 로그인
+     - name: Login DockerHub
+       run: |
+         echo "${{secrets.DOCKERHUB_PASSWORD}}" |\
+         docker login \
+         -u "${{secrets.DOCKERHUB_USERNAME}}" \
+         -- password-stdin
+     # Docker 이미지 생성
+     - name: Build Docker Image
+       run: |
+         docker build \
+           -t ${{secrets.DOCKER_USERNAME}}/last-app:latest
+     # DockerHub에 올린다
+     - name: Push Docker Image 
+       run: |
+         docker push \
+           ${{secrets.DOCKER_USERNAME}}/last-app:latest
+     # AWS 연결 => DockerHub 데이터 Pull
      - name: Set SSH key Permission
        run: |
          mkdir -p ~/.ssh
@@ -37,15 +74,15 @@ jobs:
      # Add Known_hosts
      - name: Add Known_hosts
        run: |
-         ssh-keyscan -H ed25519 15.164.102.213 >> ~/.ssh/known_hosts
+         ssh-keyscan -H ed25519 3.37.89.238 >> ~/.ssh/known_hosts
      # Jar파일을 AWS 전송 => Docker이미지 
      - name: Deploy to Server with rsync 
        run: |
-         rsync -avz -e "ssh -o StrictHostKeyChecking=no" build/libs/*.jar ubuntu@15.164.102.213:~/app
+         rsync -avz -e "ssh -o StrictHostKeyChecking=no" build/libs/*.jar ubuntu@3.37.89.238:~/app
      # 9090 포트 Kill => container 삭제 
      - name: Run command 
        run: |
-         ssh -i ~/.ssh/id_ed25519 ubuntu@15.164.102.213 << 'EOF'
+         ssh -i ~/.ssh/id_ed25519 ubuntu@3.37.89.238 << 'EOF'
            cd ~/app &&
            set -a &&
            source .env &&
