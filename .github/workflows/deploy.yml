@@ -81,8 +81,8 @@ jobs:
          ssh ubuntu@54.180.150.51 << 'EOF'
           docker stop last-app || true
           docker rm last-app || true
-          docker pull ${{secrets.DOCKER_NAME}}/last-app:latest
-          docker run -d --name last-app -p 9090:9090 ${{secrets.DOCKER_NAME}}/last-app:latest
+          docker pull ${{secrets.DOCKER_USERNAME}}/last-app:latest
+          docker run -d --name last-app --env-file .env -p 9090:9090 ${{secrets.DOCKER_USERNAME}}/last-app:latest
          EOF
     
   
