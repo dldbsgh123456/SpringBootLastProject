@@ -71,7 +71,8 @@ jobs:
            # 기존의 파일 삭제
            mkdir -p ~/app
            cd ~/app
-           rm -f .env           
+           rm -f .env
+           
            echo "DB_URL=${{secrets.DB_URL}}" >> ~/app/.env
            echo "DB_USERNAME=${{secrets.DB_USERNAME}}" >> ~/app/.env
            echo "DB_PASSWORD=${{secrets.DB_PASSWORD}}" >> ~/app/.env
