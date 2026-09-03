@@ -32,10 +32,7 @@ jobs:
           touch .env
           echo "DB_URL=${{secrets.DB_URL}}" >> .env
           echo "DB_USERNAME=${{secrets.DB_USERNAME}}" >> .env
-          echo "DB_PASSWORD=${{secrets.DB_PASSWORD}}" >> .env
-          echo "DOCKER_USERNAME=${{secrets.DOCKER_USERNAME}}" >> .env
-          echo "DOCKER_PASSWORD=${{secrets.DOCKER_PASSWORD}}" >> .env
-          
+          echo "DB_PASSWORD=${{secrets.DB_PASSWORD}}" >> .env          
      # Gradlew 권한 부여
      - name: Set gradlew permission
        run: |
