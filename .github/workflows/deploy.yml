@@ -64,7 +64,7 @@ jobs:
      - name: Add Known_hosts
        run: |
          ssh-keyscan -H 54.180.150.51 >> ~/.ssh/known_hosts
-    # DB관련 => .env 
+    # DB관련 => .env -
      - name: 환경설정
        run: |
           ssh ubuntu@54.180.150.51 << EOF
