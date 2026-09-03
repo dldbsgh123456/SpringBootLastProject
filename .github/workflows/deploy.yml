@@ -23,16 +23,7 @@ jobs:
        with:
          # 가장 최소단위 JDK = 이클립스 JDK 사용
          distribution: 'temurin'
-         java-version: '21'
-     - name: 환경설정
-       run: |
-          # 기존 파일 삭제
-          rm -f .env
-          # 새로운 .env 생성
-          touch .env
-          echo "DB_URL=${{secrets.DB_URL}}" >> .env
-          echo "DB_USERNAME=${{secrets.DB_USERNAME}}" >> .env
-          echo "DB_PASSWORD=${{secrets.DB_PASSWORD}}" >> .env          
+         java-version: '21'             
      # Gradlew 권한 부여
      - name: Set gradlew permission
        run: |
@@ -71,7 +62,21 @@ jobs:
      # Add Known_hosts
      - name: Add Known_hosts
        run: |
-         ssh-keyscan -H ed25519 54.180.150.51 >> ~/.ssh/known_hosts
+         ssh-keyscan -H 54.180.150.51 >> ~/.ssh/known_hosts
+     - name: 환경설정
+       run: |
+          ssh ubuntu@54.180.150.51 << 'EOF'
+          # 기존 파일 삭제
+          mkdir -p ~/app
+          cd ~/app
+          rm -f .env
+          # 새로운 .env 생성
+          touch .env
+          echo "DB_URL=${{secrets.DB_URL}}" >> .env
+          echo "DB_USERNAME=${{secrets.DB_USERNAME}}" >> .env
+          echo "DB_PASSWORD=${{secrets.DB_PASSWORD}}" >> .env
+          chmod 600 ~/app/.env
+          EOF
      # Deploy on service Docker Image using
      - name: Docker Image using
        run: |
@@ -79,7 +84,7 @@ jobs:
           docker stop last-app || true
           docker rm last-app || true
           docker pull ${{secrets.DOCKER_USERNAME}}/last-app:latest
-          docker run -d --name last-app --env-file .env -p 9090:9090 ${{secrets.DOCKER_USERNAME}}/last-app:latest
+          docker run -d --name last-app --env-file ~/app/.env -p 9090:9090 ${{secrets.DOCKER_USERNAME}}/last-app:latest
          EOF
     
   
