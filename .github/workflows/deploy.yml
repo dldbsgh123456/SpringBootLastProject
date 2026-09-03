@@ -86,8 +86,8 @@ jobs:
      - name: DockerHub Image using
        run: |
          ssh ubuntu@54.180.150.51 << 'EOF'
-          cd /home/ubuntu/app
-           docker-compose down
+          docker-compose down
+          cd /home/ubuntu/app          
           docker-compose pull
           docker-compose up -d
          EOF
