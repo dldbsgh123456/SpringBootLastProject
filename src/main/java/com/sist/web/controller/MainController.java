@@ -13,33 +13,35 @@ import lombok.RequiredArgsConstructor;
 @Controller
 @RequiredArgsConstructor
 public class MainController {
-	private final MemberService mService;
-	@GetMapping("/")
-	public String main_page(Authentication auth,Model model)
-	{
-		boolean isLogin=auth!=null
-					    && auth.isAuthenticated()
-					    && auth.getPrincipal()
-					           .toString()
-					           .equals("annonymousUser")==false;
-		model.addAttribute("isLogin",isLogin);
-		if(isLogin)
-		{
-			String username=auth.getName();
-			MemberVO vo=mService.findByUsername(username);
-			String role=auth.getAuthorities()
-							.iterator()
-							.next()
-							.getAuthority();
-		    model.addAttribute("username",vo.getName());
-			model.addAttribute("role",role);
-		}					
-		return "main/main";
-	}
-	
-	@GetMapping("/member/login")
-	public String member_login()
-	{
-		return "member/login";
-	}
+   private final MemberService mService;
+   
+   @GetMapping("/")
+   public String main_page(
+     Authentication auth,Model model
+   ) 
+   {
+	   boolean isLogin=auth!=null
+			           && auth.isAuthenticated()
+			           && auth.getPrincipal()
+			                  .toString()
+			                  .equals("annoymousUser")==false;
+	   model.addAttribute("isLogin", isLogin);
+	   
+	   if(isLogin) {
+		   String username=auth.getName();
+		   MemberVO vo=mService.findByUsername(username);
+		   String role=auth.getAuthorities()
+				           .iterator()
+				           .next()
+				           .getAuthority();
+		   model.addAttribute("username", vo.getName());
+		   model.addAttribute("role", role);
+	   }
+	   return "main/main";
+   }
+   @GetMapping("/member/login")
+   public String member_login()
+   {
+	   return "member/login";
+   }
 }

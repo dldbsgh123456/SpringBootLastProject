@@ -15,38 +15,40 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 /*
- *   사용자 정보 저장 : UserDetailsService
- *   토큰 생성 / 유효성 검사 : JwtauthenticationProvider
- *   통합 => filter
- *   권한 / URL 접근 => config
- *   실제 사용자 요청 => Controller
- * 
+ *    사용자 정보 저장 : UserDetailsService 
+ *    토큰 생성 / 유효성 검사 : Provider 
+ *    통합 => Filter 
+ *    권한 / URL 접근 => Config 
+ *    실제 사용자 요청 => Controller
  */
 public class JWTAuthenticationFilter extends OncePerRequestFilter{
-	private final CustomUserDetailsService uds;
-	private final JWTAuthenticationProvider provider;
-	public JWTAuthenticationFilter(CustomUserDetailsService uds,JWTAuthenticationProvider provider)
-	{
-		this.uds=uds;
-		this.provider=provider;
-	}
+    private final CustomUserDetailsService uds;
+    private final JWTAuthenticationProvider provider;
+    public JWTAuthenticationFilter(
+    		CustomUserDetailsService uds,
+    		JWTAuthenticationProvider provider
+    )
+    {
+    	this.uds=uds;
+    	this.provider=provider;
+    }
+    
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		String token=null;
-		// 토큰은 두 군데에 있음 
-		//1. header 2. Cookie
-		// Vue/React => header
-		String header=request.getHeader("Authorization"); //JSON
-		// {"Authorization":"Bearer eridsiajseijfi"}
-		//                          => subject:id , role: 권한
+		// 1. header 2. cookie 
+		// -----> Vue/React => header 
+		String header=request.getHeader("Authorization"); // JSON
+		// {"Authorization":"Bearer eewroeroeroeroeoroe"}
+		//                          => subject:id , role:권한 
 		if(header!=null && header.startsWith("Bearer "))
 		{
 			token=header.substring(7);
 		}
 		
-		// Cookie에서 처리
+		// Cookie에서 처리 
 		if(token==null && request.getCookies()!=null)
 		{
 			for(Cookie cookie:request.getCookies())
@@ -59,46 +61,52 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter{
 			}
 		}
 		
-		// JWT 검증
+		// JWT 검증 
 		if(token!=null && provider.validate(token))
 		{
+			// 사용자 정보 조회 
 			String username=provider.getUsername(token);
-			UserDetails user=uds.loadUserByUsername(username);
-			// security 인증
-			UsernamePasswordAuthenticationToken auth=new UsernamePasswordAuthenticationToken(user,null,user.getAuthorities());
-			// 저장 => Security에서 관리
-			SecurityContextHolder.getContext()
-								 .setAuthentication(auth);
+			UserDetails user=
+					uds.loadUserByUsername(username);
+			// Security 인증 
+			UsernamePasswordAuthenticationToken auth=
+				new UsernamePasswordAuthenticationToken(
+				    user,
+				    null, // 자격정보 
+				    user.getAuthorities()
+				);
+			// 저장 => Security에서 관리 
+			SecurityContextHolder
+			      .getContext()
+			      .setAuthentication(auth);
+					
 		}
-		// => 다음 Filter 사용 => Controller 실행
+		// => 다음 Filter 사용 => Controller 실행 
 		filterChain.doFilter(request, response);
-		// 요청 = DispatcherServlet
+		// 요청 = DispatcherServlet 
 		// 요청 = Security = DispatcherServlet
 	}
+
 }
 /*
- *     요청
- *      |
- *     Spring Security => Filter Chain
- *      | => 인증 / 인가 검사
+ *    요청 
+ *     |
+ *    Spring Security => Fliter Chain 
+ *     | => 인증 / 인가 검사 
  *    DispatcherServlet
- *      | => Controller 찾기 => @GetMapping / @PostMapping
+ *     | => Controller 찾기 => @GetMapping / @PostMapping 
  *    Controller / RestController
- *      |
- *    Service
- *      |
+ *     |
+ *    Service 
+ *     |
  *    Repository (Mapper)
- *      |
+ *     |
  *    Controller
- *      |
- *    DispatcherServlet
- *      |
- *    Vue/ThymeLeaf/React
- *      |
- *    브라우저 출력
+ *     |
+ *    DispctaherSevlet 
+ *     |
+ *    Vue/ThymeLeaf/React 
+ *     |
+ *    브라우저 출력 
  *    => Spring Security > DispatcherServlet
- * 
- * 
- * 
- */
-
+ */    

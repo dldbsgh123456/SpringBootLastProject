@@ -13,23 +13,22 @@ import lombok.RequiredArgsConstructor;
 @Controller
 @RequiredArgsConstructor
 public class RecipeMainController {
-	private final MemberService mService;
-	@GetMapping("/recipe/main")
-	public String recipe_main(Authentication auth,Model model)
-	{
-		boolean isLogin=auth!=null
-			    && auth.isAuthenticated()
-			    && auth.getPrincipal()
-			           .toString()
-			           .equals("annonymousUser")==false;
-		model.addAttribute("isLogin",isLogin);
-		if(isLogin)
-		{
-			String username=auth.getName();
-			MemberVO vo=mService.findByUsername(username);
-			model.addAttribute("vo",vo);
-		}
-		model.addAttribute("main_html","recipe/main/home");
-		return "recipe/main/main";
-	}
+   private final MemberService mService;
+   @GetMapping("/recipe/main")
+   public String recipe_main(Authentication auth,Model model)
+   {
+	   boolean isLogin=auth!=null
+	           && auth.isAuthenticated()
+	           && auth.getPrincipal()
+	                  .toString()
+	                  .equals("annoymousUser")==false;
+	   model.addAttribute("isLogin", isLogin);
+	   if(isLogin) {
+		   String username=auth.getName();
+		   MemberVO vo=mService.findByUsername(username);
+		   model.addAttribute("vo", vo);
+	   }
+	   model.addAttribute("main_html", "recipe/main/home");
+	   return "recipe/main/main";
+   }
 }

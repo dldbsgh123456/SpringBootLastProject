@@ -12,6 +12,5 @@ public interface MemberMapper {
 	@Select("SELECT username,password,enabled,sex,name,member_id "
 		   +"FROM member "
 		   +"WHERE username=#{username}")
-	public MemberVO findByUsername(String username);
-		   
+	public MemberVO findByUsername(String username);		   
 }
