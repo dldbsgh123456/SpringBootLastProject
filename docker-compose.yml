@@ -2,8 +2,8 @@ version: "3.8"
 services:
   app:
    build: .
-   image: leeyunho1234/pinia-app
-   container_name: pinia-app
+   image: leeyunho1234/latest-app:latest
+   container_name: last-app
    ports:
      - "9090:9090"
    env_file:
